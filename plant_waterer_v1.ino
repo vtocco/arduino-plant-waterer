@@ -1,22 +1,14 @@
-/*
-  SendDataToGoogleSpreadsheet
-
-  Demonstrates appending a row of data to a Google spreadsheet from the Arduino Yun
-  using the Temboo Arduino Yun SDK.
-
-  This example code is in the public domain.
-*/
-
 #include <Bridge.h>
 #include <FileIO.h>
 #include <Process.h>
 
-//plant stuff
+//plant sensor pins
 const int plantSensorPINA = A0;
 const int plantSensorPINB = A1;
-//moved it from A2
+//where the water pin is connected
 const int waterSensorPIN = A3;
 
+//outbound power to the sensors so we don't overuse them
 const int plantSensorPowerPINA = 6;
 const int plantSensorPowerPINB = 7;
 const int waterSensorPowerPIN = 8;
@@ -24,10 +16,13 @@ const int waterSensorPowerPIN = 8;
 //variables
 const int plantAThreshold = 590;  //what sensor level to start watering
 const int plantBThreshold = 520;
-const int wateringCycleThreshold = 3000;  //how many runs without watering before we alert, 2000 is about 2 days
-//how long to water in seconds
+const int wateringCycleThreshold = 3000;  //how many runs without watering before we alert, 2000 is about 1 days
+
+//how long to water
 const int wateringTime = 15000;  //must be in milliseconds, 15000 is 15 seconsd
 
+//Where the water pump and valve pins are located (digital power out)
+//These go to relays
 const int waterPumpPowerPIN = 9;
 const int waterValvePINA = 10;
 const int waterValvePINB = 11;
@@ -35,12 +30,11 @@ const int waterValvePINB = 11;
 //program counters
 unsigned long wateringCountsA = 0;
 unsigned long wateringCountsB = 0;
+
 //keep track of the number of program cycles
 unsigned long numberRuns = 0;
 unsigned long waterLow = 0;
 
-//int plantSensorPowerStateA = HIGH;
-//int plantSensorPowerStateB = HIGH;
 
 //time setting stuff
 String getTime() {
@@ -61,6 +55,7 @@ String getTime() {
   }
   return result;
 }
+
 
 void setClock(void) {
   Process p;
